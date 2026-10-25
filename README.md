@@ -43,6 +43,82 @@ npx kokoro-baton "A flashcard app: English on the front, meaning on the back"
 - **For the AI tools, set `ANTHROPIC_API_KEY`** in your system's environment variables once. Do not paste your key into an AI chat — it stays in the conversation history.
 - **English or Japanese** — the tools follow your system language. Force one with `--lang en` or `--lang ja`.
 
+## Files each tool reads and writes
+
+Everything is plain files in your project folder. The documents are Markdown, so they diff and review like code.
+
+| Command | Reads | Writes |
+|---|---|---|
+| `npx kokoro-baton "idea"` | your answers (and `~/.kokoro/laws.md`, if you keep design laws) | `kokoro-spec.md` |
+| `npx kokoro-baton gaps <file>` | a spec you already have | report in the terminal |
+| `npx kokoro-aegis . --out aegis-report.md` | `.js .ts .jsx .tsx .html .vue .svelte` (skips `node_modules`, `dist`, `build`, `.next`), `kokoro-spec.md` | `aegis-report.md` |
+| `npx kokoro-polish` | `check.html` (an unminified copy of the app), `kokoro-spec.md` | `kokoro-fixes.md` |
+| `npx kokoro-kami params <file>` | the `PARAMS` block in your code | `<name> params.xlsx` (`--apply` writes edited numbers back into `PARAMS`) |
+| `npx kokoro-writer spec-doc` | `kokoro-spec.md`, `PARAMS` | `spec-for-readers.md` |
+| `npx kokoro-writer system-docs` | your code, `kokoro-spec.md` | `system-specs/1_<name>.md`, … |
+| `npx kokoro-tuner .` | the `STYLE` block in your code | the same `STYLE` values, edited in place |
+| `npx kokoro-pipeline after .` | the project folder | runs the steps above in order |
+| `npx kokoro-pipeline status .` | the documents above | which documents are out of date |
+
+**Re-running never deletes.** Before `kokoro-pipeline` rewrites a document, it moves the old one to `previous/<date_time>/`. The latest always has the same name.
+
+**"Out of date" is decided by content, not timestamps.** Each document starts with a small marker holding fingerprints of the spec and code it was made from; `status` compares them with the current files.
+
+## What leaves your machine
+
+| Tool | Sends | To |
+|---|---|---|
+| kokoro-aegis | **nothing** (if you have API keys set, it only asks each provider for its list of model names; `--offline` turns that off) | — |
+| kokoro-kami `params`, kokoro-tuner (sliders), kokoro-pipeline `status` | **nothing** | — |
+| kokoro-baton, kokoro-writer, kokoro-kami, kokoro-slide, kokoro-polish, kokoro-tuner `candidates` | your text, spec or code, with your API key | Kokoro OS (`usekokoro.com/api/v1/…`), which calls Anthropic with your key |
+
+- **Kokoro OS does not store your text, code or key.** It holds the prompts on its side, so the tools stay small; the request passes through and the answer comes back.
+- For rate limits, it keeps only a short hash of your key (or of your IP, when there is no key). Those rows are deleted after 2 days.
+- AI costs are billed by Anthropic to **your** key. Kokoro OS charges nothing.
+
+## Using it with Claude Code (or another AI coding tool)
+
+Most commands can be run by your AI. Paste these as they are:
+
+```
+Run npx kokoro-aegis . --out aegis-report.md in this folder and show me the table.
+```
+
+```
+Run npx kokoro-baton gaps kokoro-spec.md in this folder and show me which points are not answered.
+```
+
+```
+Run npx kokoro-pipeline after . --only params,aegis --yes in this folder. These steps use no AI.
+```
+
+```
+Before you run anything that uses AI (kokoro-polish, kokoro-writer, or the AI steps of kokoro-pipeline), tell me the cost and wait for my yes.
+```
+
+**Exception: the questions of `kokoro-baton "idea"`.** They are for you to answer — an AI running it would answer them itself. Run that one yourself.
+
+`kokoro-spec.md` already ends with an "After building" section: when your AI finishes, it runs the no-AI checks on its own and asks you before the AI steps.
+
+## Costs and limits
+
+Measured on a small sample game in October 2026. Billed to your Anthropic key.
+
+| Step | Cost |
+|---|---|
+| kokoro-baton (one round of questions) | under 1¢ |
+| kokoro-aegis, `kami params`, kokoro-tuner sliders | free (no AI) |
+| `kokoro-pipeline after .`, all five steps | about $2–2.70 in total |
+| kokoro-polish alone | about $0.70–1 per run |
+
+- The costly steps (kokoro-polish, `kokoro-writer system-docs`, and the AI steps of `kokoro-pipeline`) say what they will send and roughly what it will cost, then ask — unless you pass `--yes`.
+- Rate limits on the Kokoro OS side: for example, kokoro-polish runs up to 6 times per hour per key.
+
+## Guides (Japanese)
+
+- [Basic: Baton → AI → Aegis](https://www.northernsadnessproductions.com/kokoro-os/npx-basic)
+- [All eight tools in one flow, with a sample project to download](https://www.northernsadnessproductions.com/kokoro-os/npx-pipeline)
+
 ## About this repository
 
 This repository is the signboard for the tools. **The source code is not published here** — the tools are distributed on npm.
@@ -92,6 +168,17 @@ npx kokoro-baton "単語カード：表に英語、裏に意味"
 - **Node.js 22 以上が要ります。**
 - **AI を使う道具は、`ANTHROPIC_API_KEY` をパソコンの環境変数に一度入れておきます。** キーを AI との会話に貼らないでください（会話の記録に残ります）。
 - **日本語と英語** に対応しています。パソコンの言語に合わせます。`--lang ja` / `--lang en` で決めることもできます。
+
+### 詳しい使い方
+
+- [基本の使い方 ― Baton → AI → Aegis](https://www.northernsadnessproductions.com/kokoro-os/npx-basic)
+- [道具 8 本をつないだ流れ（作例「のこれ！」のダウンロードつき）](https://www.northernsadnessproductions.com/kokoro-os/npx-pipeline)
+
+読むファイル・書くファイル、パソコンの外に出るもの、AI への頼み方、費用の目安は、上の英語の節にまとめてあります。要点は次のとおりです。
+
+- **Aegis・パラメータ表・Tuner のスライダー・status は、どこにも送りません。**
+- ほかの道具は、文章やコードをあなたのキーと一緒に Kokoro OS に送り、Kokoro OS があなたのキーで Anthropic を呼びます。**文章・コード・キーは保存しません。** 回数の上限のために、キー（無ければ IP）の短い写しだけを残し、2 日で消します。
+- 費用のかかる段（研磨・仕組みの仕様書・pipeline の AI の段）は、動かす前に費用を言って聞きます。
 
 ### このリポジトリについて
 
