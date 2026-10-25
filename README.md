@@ -1,5 +1,7 @@
 # Kokoro OS tools
 
+When you build an app with an AI coding tool, it quietly decides things you never asked about — where your data is saved, what shows when a list is empty, whether deleting asks first — and you only find out after it's built, when fixing it is expensive. These tools make you decide first, and check afterwards.
+
 **Decide → build → check, from your terminal.** Eight small command-line tools from [Kokoro OS](https://usekokoro.com) for people who build apps with an AI coding tool (Claude Code and others).
 
 Nothing to install — run them with `npx`. Free, no sign-up. The tools that use AI run on **your own Anthropic API key**; the rest use no AI at all.
