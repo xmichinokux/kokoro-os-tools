@@ -8,6 +8,10 @@ Nothing to install — run them with `npx`. Free, no sign-up. The tools that use
 
 [日本語は下にあります](#日本語)
 
+![Decide, build, check — shown in the Kokoro OS web app](docs/demo.gif)
+
+*The same flow in the Kokoro OS web app ([usekokoro.com](https://usekokoro.com)). The tools here do it from your terminal.*
+
 ## The flow
 
 ```
