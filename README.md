@@ -76,11 +76,9 @@ Everything is plain files in your project folder. The documents are Markdown, so
 |---|---|---|
 | kokoro-aegis | **nothing** (if you have API keys set, it only asks each provider for its list of model names; `--offline` turns that off) | — |
 | kokoro-kami `params`, kokoro-tuner (sliders), kokoro-pipeline `status` | **nothing** | — |
-| kokoro-slide, kokoro-kami, kokoro-writer, kokoro-polish, kokoro-tuner `candidates` (all from 0.2.0; Writer including `spec-doc` and `system-docs`) | your text, spec or code, with your API key | **Anthropic directly** — the prompts are inside the tool; nothing goes through Kokoro OS |
-| kokoro-baton | your text, spec or code, with your API key | Kokoro OS (`usekokoro.com/api/v1/…`), which calls Anthropic with your key |
+| kokoro-baton, kokoro-slide, kokoro-kami, kokoro-writer, kokoro-polish, kokoro-tuner `candidates` (all from 0.2.0; Baton including `gaps`, Writer including `spec-doc` and `system-docs`) | your text, spec or code, with your API key | **Anthropic directly** — the prompts are inside the tool; nothing goes through Kokoro OS |
 
-- **Kokoro OS does not store your text, code or key.** For kokoro-baton, which goes through it, it holds the prompts on its side; the request passes through and the answer comes back.
-- For rate limits, it keeps only a short hash of your key (or of your IP, when there is no key). Those rows are deleted after 2 days.
+- **Nothing goes through Kokoro OS**, so Kokoro OS never sees or keeps your text, code or key. (Versions 0.1.x went through Kokoro OS; `npx` picks up the latest version.)
 - AI costs are billed by Anthropic to **your** key. Kokoro OS charges nothing.
 
 ## Using it with Claude Code (or another AI coding tool)
@@ -119,7 +117,7 @@ Measured on a small sample game in October 2026. Billed to your Anthropic key.
 | kokoro-polish alone | about $0.70–1 per run |
 
 - The costly steps (kokoro-polish, `kokoro-writer system-docs`, and the AI steps of `kokoro-pipeline`) say what they will send and roughly what it will cost, then ask — unless you pass `--yes`.
-- Rate limits on the Kokoro OS side apply only to the tool that still goes through it (kokoro-baton). The tools that go straight to Anthropic are limited only by your own Anthropic account.
+- There are no rate limits on the Kokoro OS side. The tools are limited only by your own Anthropic account.
 
 ## Guides (Japanese)
 
@@ -184,8 +182,8 @@ npx kokoro-baton "単語カード：表に英語、裏に意味"
 読むファイル・書くファイル、パソコンの外に出るもの、AI への頼み方、費用の目安は、上の英語の節にまとめてあります。要点は次のとおりです。
 
 - **Aegis・パラメータ表・Tuner のスライダー・status は、どこにも送りません。**
-- **Slide・Kami・Writer・研磨（Polish）・Tuner の法則の候補（どれも 0.2.0 から・Writer の spec-doc と system-docs も）は、あなたのパソコンから直接 Anthropic に送ります。** Kokoro OS は通りません。
-- Baton は、文章やコードをあなたのキーと一緒に Kokoro OS に送り、Kokoro OS があなたのキーで Anthropic を呼びます。**文章・コード・キーは保存しません。** 回数の上限のために、キー（無ければ IP）の短い写しだけを残し、2 日で消します。
+- **Baton・Slide・Kami・Writer・研磨（Polish）・Tuner の法則の候補（どれも 0.2.0 から・Baton の gaps、Writer の spec-doc と system-docs も）は、あなたのパソコンから直接 Anthropic に送ります。** Kokoro OS は通りません。
+- Kokoro OS のサーバーを通らないので、**文章・コード・キーを Kokoro OS が見ることも、残すこともありません。**（0.1.x の版は Kokoro OS を通っていました。`npx` は新しい版を取ってきます）
 - 費用のかかる段（研磨・仕組みの仕様書・pipeline の AI の段）は、動かす前に費用を言って聞きます。
 
 ### このリポジトリについて
