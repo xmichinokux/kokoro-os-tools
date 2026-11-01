@@ -76,9 +76,10 @@ Everything is plain files in your project folder. The documents are Markdown, so
 |---|---|---|
 | kokoro-aegis | **nothing** (if you have API keys set, it only asks each provider for its list of model names; `--offline` turns that off) | — |
 | kokoro-kami `params`, kokoro-tuner (sliders), kokoro-pipeline `status` | **nothing** | — |
-| kokoro-baton, kokoro-writer, kokoro-kami, kokoro-slide, kokoro-polish, kokoro-tuner `candidates` | your text, spec or code, with your API key | Kokoro OS (`usekokoro.com/api/v1/…`), which calls Anthropic with your key |
+| kokoro-slide (from 0.2.0) | your text, with your API key | **Anthropic directly** — the prompts are inside the tool; nothing goes through Kokoro OS |
+| kokoro-baton, kokoro-writer, kokoro-kami, kokoro-polish, kokoro-tuner `candidates` | your text, spec or code, with your API key | Kokoro OS (`usekokoro.com/api/v1/…`), which calls Anthropic with your key |
 
-- **Kokoro OS does not store your text, code or key.** It holds the prompts on its side, so the tools stay small; the request passes through and the answer comes back.
+- **Kokoro OS does not store your text, code or key.** For the tools that go through it, it holds the prompts on its side; the request passes through and the answer comes back.
 - For rate limits, it keeps only a short hash of your key (or of your IP, when there is no key). Those rows are deleted after 2 days.
 - AI costs are billed by Anthropic to **your** key. Kokoro OS charges nothing.
 
@@ -183,6 +184,7 @@ npx kokoro-baton "単語カード：表に英語、裏に意味"
 読むファイル・書くファイル、パソコンの外に出るもの、AI への頼み方、費用の目安は、上の英語の節にまとめてあります。要点は次のとおりです。
 
 - **Aegis・パラメータ表・Tuner のスライダー・status は、どこにも送りません。**
+- **Slide（0.2.0 から）は、あなたのパソコンから直接 Anthropic に送ります。** Kokoro OS は通りません。
 - ほかの道具は、文章やコードをあなたのキーと一緒に Kokoro OS に送り、Kokoro OS があなたのキーで Anthropic を呼びます。**文章・コード・キーは保存しません。** 回数の上限のために、キー（無ければ IP）の短い写しだけを残し、2 日で消します。
 - 費用のかかる段（研磨・仕組みの仕様書・pipeline の AI の段）は、動かす前に費用を言って聞きます。
 
